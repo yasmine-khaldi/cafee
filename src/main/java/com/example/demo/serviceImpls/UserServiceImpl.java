@@ -40,7 +40,7 @@ import com.google.common.base.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
 @Service
 public abstract class UserServiceImpl implements  UserService {
 
@@ -66,11 +66,6 @@ public abstract class UserServiceImpl implements  UserService {
 	public ResponseEntity<String> signUp(Map<String, String> requestMap) {
 
 		System.out.println("Inside signUp{"+requestMap+"}");
-		Logger log = null;
-		log.info("Inside signUp{"+requestMap+"}");
-		
-
-		
 		try {
 			if (validateSignUp(requestMap)) {
 
@@ -91,17 +86,16 @@ public abstract class UserServiceImpl implements  UserService {
 		return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	private Boolean validateSignUp(Map<String, String> requestMap) {
+	public Boolean validateSignUp(Map<String, String> requestMap) {
 
 		if (requestMap.containsKey("name") && requestMap.containsKey("contactNumber") && requestMap.containsKey("email")
 				&& requestMap.containsKey("password")) {
 			return true;
 		} else
 			return false;
-
 	}
 
-	private User getUserFromMap(Map<String, String> requestMap) {
+	public User getUserFromMap(Map<String, String> requestMap) {
 		User user = new User();
 		user.setName(requestMap.get("name"));
 		user.setContactNumber(requestMap.get("contactNumber"));

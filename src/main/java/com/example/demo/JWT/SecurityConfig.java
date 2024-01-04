@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,22 +37,22 @@ public class SecurityConfig  {
 	
 	@Bean // Default Behaviour of HttpSecurityObj will not have any authorization logic
 	public SecurityFilterChain FilterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable);
+	    http.requiresChannel(c -> c.requestMatchers("/user/**").requiresInsecure());
+	    http.authorizeHttpRequests(request -> {
+	              request.requestMatchers("/user/signUp").permitAll();
+	              request.anyRequest().authenticated();
+	        });
+	    http.formLogin(fL -> fL.loginPage("/user/login")
+	            .usernameParameter("email").permitAll()
+	            .defaultSuccessUrl("/", true)
+	            .failureUrl("/login-error"));
+	    http.logout(logOut -> logOut.logoutUrl("/logout")
+	            .clearAuthentication(true)
+	            .invalidateHttpSession(true)
+	            .deleteCookies("JSESSIONID","Idea-2e8e7cee")
+	            .logoutSuccessUrl("/user/login"));
 		
-
-		http
-			.csrf().disable()
-			.authorizeHttpRequests()
-			.requestMatchers("/user/login","/user/signup","/user/forgotPassword")
-			.permitAll()
-			.anyRequest()
-			.authenticated()
-			.and()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
-			.authenticationProvider(authenticationProvider)
-			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-			
 		return http.build();
 		
 		
